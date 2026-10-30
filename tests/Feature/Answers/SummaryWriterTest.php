@@ -704,7 +704,17 @@ class SummaryWriterTest extends TestCase
         ]);
         $line = fn (string $body): string => $this->summaryLines($this->headerLine('agree', 'الجمع للمسافر'), $this->pointLine('agreed', 'الجمع للمسافر', $body, ['F1'], ['F1.S2']));
 
-        SummaryWriter::fake([$line('يجوز للمسافر أن يجمع بين الظهر والعصر في وقت إحداهما إذا جد به السير.'), $line('يجوز للمسافر أن يجمع بين الظهر والعصر في وقت إحداهما إذا جد به السير.')]);
+        $bare = $line('يجوز للمسافر أن يجمع بين الظهر والعصر في وقت إحداهما إذا جد به السير.');
+
+        // Without the claims judge, the reported-view check rejects it.
+        config(['fatwarag.summary.claims_judge' => false]);
+        SummaryWriter::fake([$bare, $bare]);
+        $this->assertSame(['status' => 'failed'], app(SummaryWriter::class)->write('سؤال', collect([$fatwa]), 'ar'));
+
+        // With it, the judge decides, reading the lead-in («…أقوالا منها:») with the cited sentence.
+        config(['fatwarag.summary.claims_judge' => true]);
+        SummaryWriter::fake([$bare, $bare]);
+        EntailmentJudge::fake(fn (): array => ['verdicts' => [['id' => 'agreed', 'verdict' => 'not_supported', 'reason' => 'reported view stated as the fatwa\'s ruling', 'sentences' => []]]]);
         $this->assertSame(['status' => 'failed'], app(SummaryWriter::class)->write('سؤال', collect([$fatwa]), 'ar'));
 
         SummaryWriter::fake([$line('ذكر بعض الفقهاء أنه يجوز للمسافر أن يجمع بين الظهر والعصر في وقت إحداهما إذا جد به السير.')]);

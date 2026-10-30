@@ -126,9 +126,10 @@ class GroundingCheck
 
     /**
      * Whether the claims judge rules on every item this check passes. Then the heuristic ruling checks (numbers, ruling
-     * strength, anchoring, conditions, time, a cited fatwa's other ruling) don't veto: they misread correct paraphrases,
-     * and the judge reads meaning. What they flag is kept in `deferred()` for the logs. The structural checks (support
-     * quotes, wording coverage, the site's own voice, naming the source, reported views) still reject.
+     * strength, anchoring, conditions, time, a cited fatwa's other ruling, reported views) don't veto: they misread
+     * correct paraphrases, and «العهدة على المصدر»: relaying what a fatwa says, views it reports included, is the job.
+     * The judge reads meaning. What they flag is kept in `deferred()` for the logs. The structural checks (support
+     * quotes, wording coverage, the site's own voice, naming the source) still reject.
      */
     private bool $judged = false;
 
@@ -679,8 +680,8 @@ class GroundingCheck
         // A point whose ruling is carried only by a view its fatwa reports from others («ذكر بعض الفقهاء أقوالا…
         // وأشهرها: يجوز…») would reach readers as that fatwa's ruling, unless the point itself says it is others' view.
         if ($fields['heldBy'] && ! $reportsOthers) {
-            if (! $this->carriedByOwnVoice($claimText, $support)) {
-                return $reject('its ruling rests only on a view the fatwa reports from others («ذهب بعضهم», «منها:», «وأشهرها:»); say whose view it is, or cite the sentence where the fatwa states its own view');
+            if (! $this->carriedByOwnVoice($claimText, $support) && $heuristic('its ruling rests only on a view the fatwa reports from others («ذهب بعضهم», «منها:», «وأشهرها:»); say whose view it is, or cite the sentence where the fatwa states its own view')) {
+                return null;
             }
 
             if (array_key_exists('title', $item) && ! $this->carriedByOwnVoice((string) $item['title'], $support)) {
@@ -717,8 +718,8 @@ class GroundingCheck
             $titleFailed = true;
         }
 
-        if ($mustName && $this->reportsOthersView($support, $prose, $names)) {
-            return $reject('preference credits the source with a view its quote reports from others («ذهب بعضهم», «وقيل»); quote the sentence where the source states its own view');
+        if ($mustName && $this->reportsOthersView($support, $prose, $names) && $heuristic('preference credits the source with a view its quote reports from others («ذهب بعضهم», «وقيل»); quote the sentence where the source states its own view')) {
+            return null;
         }
 
         $checked = [...$item, 'citations' => $citations, 'support' => $support];
