@@ -1000,7 +1000,8 @@ class GroundingCheck
         $claim = Arabic::normalize($text);
         $claimStems = array_flip(Lexicon::contentStems($text));
         $sources = array_map(fn (array $quote): string => Arabic::normalize($quote['quote']), $support);
-        $comparatives = fn (string $normalized): array => array_values(array_intersect(explode(' ', $normalized), self::COMPARATIVES));
+        // «بدون» is «دون» ("without"): «دون علمها» from «بدون علمها» adds no comparative.
+        $comparatives = fn (string $normalized): array => array_values(array_intersect(array_map(fn (string $word): string => $word === 'بدون' ? 'دون' : $word, explode(' ', $normalized)), self::COMPARATIVES));
         // «ما» counts too: «حتى ما يعقل» is «حتى لا يعقل».
         $negated = fn (string $phrase): bool => preg_match('/(^|\s)(لا|لم|ولم|فلم|ليس|غير|ما|لن)\s/u', ' '.$phrase.' ') === 1;
         $phrases = function (string $normalized): array {

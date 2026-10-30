@@ -2,6 +2,8 @@
 
 namespace App\Answers;
 
+use App\Support\Arabic;
+
 /**
  * Reads the rulings a text states, with their strength and polarity, as one of: obligatory, recommended, permitted,
  * disliked, forbidden, or the negation of one (not-obligatory, not-recommended, not-disliked, not-forbidden), plus
@@ -350,10 +352,12 @@ final class Polarity
      */
     public function contradictedBy(string $prose, string $fatwa): bool
     {
-        // A view the fatwa reports from others («فذهب بعضهم إلى أنه يجوز…») is not a ruling it gives.
+        // A view the fatwa reports from others («فذهب بعضهم إلى أنه يجوز…») is not a ruling it gives, and neither is a
+        // question it quotes («وقد سئل الشيخ: … فهل يشترط أن يستأذن امرأته؟») or a view it puts in order to answer it
+        // («فمن قال: يشترط…، فهو المطالب بالدليل»).
         $clauses = $this->clauseIndex(array_values(array_filter(
             preg_split('/(?<=[.!?؟؛\n])/u', $fatwa) ?: [],
-            fn (string $sentence): bool => ! GroundingCheck::attributesToOthers($sentence),
+            fn (string $sentence): bool => ! GroundingCheck::attributesToOthers($sentence) && ! self::notItsRuling($sentence),
         )));
 
         foreach ($this->rulingScopes($prose) as ['value' => $value, 'scope' => $scope]) {
@@ -377,6 +381,21 @@ final class Polarity
         }
 
         return false;
+    }
+
+    /**
+     * Whether a sentence only asks («فهل يشترط…؟», «ما حكم…؟»: ends in a question mark and asks with «هل» or «ما حكم»)
+     * or puts someone's saying to answer it («فمن قال: يشترط…»).
+     */
+    private static function notItsRuling(string $sentence): bool
+    {
+        $normalized = ' '.Arabic::normalize($sentence).' ';
+
+        if (preg_match('/\s(و|ف)?من\s+قال\s/u', $normalized) === 1) {
+            return true;
+        }
+
+        return preg_match('/[؟?]$/u', trim($sentence)) === 1 && preg_match('/\s(و|ف)?(هل|ما\s+(ال)?حكم)\s/u', $normalized) === 1;
     }
 
     /**
@@ -1017,6 +1036,14 @@ final class Polarity
             }
 
             if ($bare === 'الاولي' && (str_ends_with($previous, 'ه') || str_ends_with($previous, 'ات') || in_array($previous, ['العشر', 'الليالي', 'الايام', 'الثلث', 'الدنيا', 'الحياه'], true))) {
+                return null;
+            }
+
+            // «أن يعلم الأولى أو يأخذ رأيها», «من إعلام الأولى», «مع عدم علم الأولى في حق…»: "the first (wife)" right after
+            // a content word is no preference; «وهذا هو الأولى», «لكن الأولى», «تركه الأولى له أن…» still are.
+            if ($bare === 'الاولي' && $previous !== '' && ! Lexicon::isStopword($previous)
+                && ! in_array($tokens[$i + 1] ?? '', ['ان', 'بان', 'له', 'لها', 'لهما', 'لهم', 'لك', 'به', 'بها'], true)
+                && ! in_array($previous, ['هو', 'هي', 'وهو', 'وهي', 'فهو', 'فهي', 'كان', 'فكان', 'وكان', 'لكان', 'يكون', 'فيكون', 'هذا', 'وهذا', 'فهذا', 'ذلك', 'وذلك', 'فذلك', 'لكن', 'ولكن', 'بل'], true)) {
                 return null;
             }
 
