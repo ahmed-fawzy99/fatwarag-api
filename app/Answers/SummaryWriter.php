@@ -7,10 +7,12 @@ use App\Models\FatwaLink;
 use App\Models\HadithQuote;
 use App\Services\AiSpend;
 use App\Services\Alerts;
+use App\Services\Telegram;
 use App\Support\Arabic;
 use Closure;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasProviderOptions;
@@ -207,6 +209,13 @@ class SummaryWriter implements Agent, HasProviderOptions
      */
     private ?Closure $trace = null;
 
+    /**
+     * What each attempt rejected, for the owner's Telegram report when the summary fails.
+     *
+     * @var list<array{attempt: int, outcome: string, problems: list<array{item: string, reason: string}>}>
+     */
+    private array $attemptLog = [];
+
     public function __construct(
         private GroundingCheck $check,
         private AiSpend $spend,
@@ -324,6 +333,7 @@ class SummaryWriter implements Agent, HasProviderOptions
         $this->emit = $emit;
         $this->locale = $locale === 'en' ? 'en' : 'ar';
         $this->question = $question;
+        $this->attemptLog = [];
         $this->send('stage', ['stage' => 'reading']);
 
         // Every listed fatwa (the search lists at most `fatwarag.search.max_results`), in full.
@@ -342,15 +352,65 @@ class SummaryWriter implements Agent, HasProviderOptions
                 $this->tasks->warm();
             }
 
-            return $this->attempts($question, $this->blocks($question, $fatwas), $startedAt);
+            return $this->reportFailure($this->attempts($question, $this->blocks($question, $fatwas), $startedAt), $fatwas);
         } catch (Throwable $exception) {
             // Fail closed. Only the class: a message could echo the question, and questions are never logged.
             Log::warning('Summary failed', ['error' => $exception::class]);
 
-            return ['status' => 'failed'];
+            return $this->reportFailure(['status' => 'failed'], $fatwas, $exception::class);
         } finally {
             $this->tasks->stop();
         }
+    }
+
+    /**
+     * Owner request: a summary that fails for a reader is reported on Telegram with what's needed to reproduce it: the
+     * question, its locale, the fatwas read and what each attempt rejected. Not for a reader who left, nor for
+     * diagnosis runs; the same question is reported once in 6 hours.
+     *
+     * @param  array{status: string, summary?: array<string, mixed>}  $result
+     * @return array{status: string, summary?: array<string, mixed>}
+     */
+    private function reportFailure(array $result, Collection $fatwas, ?string $error = null): array
+    {
+        if (($result['status'] ?? null) !== 'failed' || $this->gone || $this->trace !== null) {
+            return $result;
+        }
+
+        try {
+            if (! Cache::add('summary-failure-report:'.sha1($this->locale.'|'.$this->question), true, now()->addHours(6))) {
+                return $result;
+            }
+
+            $lines = [
+                '⚠️ Summary failed ('.$this->locale.')',
+                'Q: '.$this->question,
+                'Fatwas: '.$fatwas->pluck('public_id')->implode(', '),
+            ];
+
+            if ($error !== null) {
+                $lines[] = 'Error: '.$error;
+            }
+
+            foreach ($this->attemptLog as $entry) {
+                $lines[] = '';
+                $lines[] = "Attempt {$entry['attempt']}: {$entry['outcome']}";
+
+                foreach ($entry['problems'] as $problem) {
+                    $lines[] = '• '.mb_substr((string) ($problem['item'] ?? ''), 0, 60).': '.mb_substr((string) ($problem['reason'] ?? ''), 0, 220);
+                }
+            }
+
+            if ($this->attemptLog === [] && $error === null) {
+                $lines[] = 'No attempt finished (time limit or the reader stopped waiting).';
+            }
+
+            app(Telegram::class)->send(implode("\n", $lines));
+        } catch (Throwable) {
+            // The report must never change what the reader gets.
+        }
+
+        return $result;
     }
 
     /**
@@ -476,6 +536,7 @@ class SummaryWriter implements Agent, HasProviderOptions
             $this->trace('attempt', ['attempt' => $attempt, 'problems' => $problems]);
             $summary = $this->attempt($this->request($question, $blocks, $problems));
             $this->trace('attempt_end', ['attempt' => $attempt, 'outcome' => $summary === false ? 'broke' : ($summary === null ? 'failed' : 'ok'), 'summary' => is_array($summary) ? $summary : null, 'rejections' => $this->check->rejections(), 'problems' => $this->problems]);
+            $this->attemptLog[] = ['attempt' => $attempt, 'outcome' => $summary === false ? 'broke' : ($summary === null ? 'failed' : 'ok'), 'problems' => $this->problems];
 
             if ($summary === false) {
                 // A rewrite that broke leaves the checked parts of the first draft, unless the reader has gone.

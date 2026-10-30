@@ -783,6 +783,30 @@ class SummaryWriterTest extends TestCase
         );
     }
 
+    /**
+     * Owner request: a failed summary reaches the owner on Telegram with the question, the fatwas and what each attempt
+     * rejected, once per question in 6 hours.
+     */
+    public function test_a_failed_summary_is_reported_on_telegram_with_its_rejections_once(): void
+    {
+        config(['fatwarag.telegram.token' => 'test-token', 'fatwarag.telegram.chat_id' => '1']);
+        Http::fake(['api.telegram.org/*' => Http::response(['ok' => true])]);
+        [$fatwa, $other] = $this->fatwas();
+        $bad = $this->summaryLines($this->headerLine(), $this->agreedLine(['support' => ['F1.S99']]));
+
+        SummaryWriter::fake([$bad, $bad, $bad, $bad]);
+
+        $this->assertSame(['status' => 'failed'], app(SummaryWriter::class)->write('سؤال الاختبار', collect([$fatwa, $other]), 'ar'));
+        $this->assertSame(['status' => 'failed'], app(SummaryWriter::class)->write('سؤال الاختبار', collect([$fatwa, $other]), 'ar'));
+
+        Http::assertSentCount(1);
+        Http::assertSent(fn ($request): bool => str_contains($request['text'], 'Summary failed (ar)')
+            && str_contains($request['text'], 'سؤال الاختبار')
+            && str_contains($request['text'], $fatwa->public_id)
+            && str_contains($request['text'], 'Attempt 1: failed')
+            && str_contains($request['text'], 'no support'));
+    }
+
     public function test_a_reader_who_leaves_stops_the_summary_with_no_rewrite(): void
     {
         [$fatwa, $other] = $this->fatwas();
