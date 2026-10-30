@@ -32,7 +32,64 @@ class QuestionGate implements Agent, HasStructuredOutput
 
     private const FAILURE_WINDOW_SECONDS = 600;
 
+    /** Rows of the Latin and Arabic keyboards, for spotting a run of neighbouring keys ("asdfgh"). */
+    private const KEYBOARD_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm', 'ضصثقفغعهخحجد', 'شسيبلاتنمكط', 'ئءؤرلاىةوزظ'];
+
     public function __construct(private AiSpend $spend) {}
+
+    /**
+     * Whether a question has no real words, decided without the model: only symbols or digits, or words that are a
+     * letter or syllable repeated («غغغغ», «ههههه»), a run of neighbouring keys ("asdfghjkl") or too few distinct letters.
+     * Such a question is off-topic at once. Single letters don't count either way; a question is meaningless when fewer
+     * than half its words are real.
+     */
+    public static function meaningless(string $question): bool
+    {
+        $text = mb_strtolower((string) preg_replace('/[\p{M}\x{0640}]+/u', '', $question));
+        preg_match_all('/\p{L}+/u', $text, $matches);
+        $words = array_values(array_filter($matches[0], fn (string $word): bool => mb_strlen($word) >= 2));
+
+        if ($words === []) {
+            return true;
+        }
+
+        $real = count(array_filter($words, fn (string $word): bool => self::realWord($word)));
+
+        return $real * 2 < count($words);
+    }
+
+    private static function realWord(string $word): bool
+    {
+        $letters = mb_str_split($word);
+        $distinct = count(array_unique($letters));
+
+        // One letter repeated («هههه»), the same letter three times running, a syllable repeated («هاهاها») or a long
+        // word of very few distinct letters.
+        if ($distinct < 2 || preg_match('/(\p{L})\1\1|^(\p{L}{1,3})\2{2,}/u', $word) || (count($letters) >= 6 && $distinct / count($letters) < 0.3)) {
+            return false;
+        }
+
+        if (count($letters) < 5) {
+            return true;
+        }
+
+        // A slide along one keyboard row: most neighbouring letters are neighbouring keys, in the same direction.
+        $steps = [1 => 0, -1 => 0];
+
+        for ($i = 1; $i < count($letters); $i++) {
+            foreach (self::KEYBOARD_ROWS as $row) {
+                $keys = array_flip(mb_str_split($row));
+
+                if (isset($keys[$letters[$i - 1]], $keys[$letters[$i]]) && abs($step = $keys[$letters[$i]] - $keys[$letters[$i - 1]]) === 1) {
+                    $steps[$step]++;
+
+                    break;
+                }
+            }
+        }
+
+        return max($steps) / (count($letters) - 1) < 0.8;
+    }
 
     public function instructions(): string
     {
@@ -50,6 +107,9 @@ class QuestionGate implements Agent, HasStructuredOutput
             "how to cook pasta"), is not religious.
             A bare name of an ordinary thing with nothing religious about it, such as a food, a car or a team («الكفتة»,
             "pasta"), is not religious either; a bare religious term («الزكاة», "wudu") is.
+            Text with no meaning is not religious either: gibberish, keyboard mashing, a repeated letter or syllable
+            («غغغغغغ», «ههههه», "asdfgh"), random letters, or only symbols, digits or emoji.
+            A short or vague question in real words («هل يجوز ذلك», "is it allowed") is religious.
             When you are unsure, answer true.
             TEXT;
     }
@@ -101,10 +161,15 @@ class QuestionGate implements Agent, HasStructuredOutput
     }
 
     /**
-     * The cached verdict for a question (true: religious), or null when it has none.
+     * The cached verdict for a question (true: religious), or null when it has none. A meaningless question is always
+     * off-topic.
      */
     public function cached(string $question): ?bool
     {
+        if (self::meaningless($question)) {
+            return false;
+        }
+
         try {
             $verdict = $this->store()->get($this->key($question));
         } catch (Throwable $exception) {

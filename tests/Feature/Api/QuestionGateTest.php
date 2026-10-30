@@ -55,6 +55,25 @@ class QuestionGateTest extends TestCase
         QuestionGate::assertPrompted(fn ($prompt): bool => $prompt->contains(self::OFF_TOPIC));
     }
 
+    public function test_a_meaningless_question_is_off_topic_without_a_model_call_or_a_search(): void
+    {
+        foreach (['غغغغغغغغغغغغغغغغ', 'ههههههههه', 'asdfghjkl', '؟؟؟؟', '١٢٣٤٥'] as $question) {
+            $this->ask($question)->assertStatus(422)->assertJsonPath('error.code', 'off_topic');
+        }
+
+        QuestionGate::assertNeverPrompted();
+        Embeddings::assertNothingGenerated();
+        $this->assertSame(0, AiUsage::query()->count());
+    }
+
+    public function test_real_short_questions_pass_the_word_check(): void
+    {
+        $this->ask('ما حكم الربا')->assertOk();
+        $this->ask('الوضوء')->assertOk();
+
+        QuestionGate::assertPromptedTimes(2);
+    }
+
     public function test_an_off_topic_question_counts_toward_the_limit_and_its_spend_is_recorded(): void
     {
         QuestionGate::fake(fn (): array => ['religious' => false]);

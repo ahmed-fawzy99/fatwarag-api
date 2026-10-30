@@ -66,6 +66,11 @@ class SearchController extends Controller
             $question = $merger->merge($original, $question);
         }
 
+        // A question with no real words (a repeated letter, keyboard mashing, only symbols or digits) is never searched.
+        if (QuestionGate::meaningless($question)) {
+            return ErrorResponse::make('off_topic', 'This site only answers religious questions.', 422);
+        }
+
         // Whether the question is religious is decided beside the search, on the whole question (so it adds no delay).
         $gateCheck = $gate->begin($question, SummaryThrottle::client($request));
 
