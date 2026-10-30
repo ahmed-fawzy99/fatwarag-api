@@ -715,20 +715,14 @@ class SummaryWriterTest extends TestCase
     }
 
     /**
-     * Review fix rounds 1–2: leaving the contradicting sentence out of the support doesn't hide it: a cited fatwa that
-     * gives the opposite ruling on the same thing elsewhere rejects the point.
+     * Review fix rounds 1–2: leaving the contradicting sentence out of the support doesn't hide it. With the claims
+     * judge off, a cited fatwa that gives the opposite ruling on the same thing elsewhere rejects the point.
      */
-    public function test_a_cited_fatwas_opposite_ruling_elsewhere_rejects_the_point(): void
+    public function test_a_cited_fatwas_opposite_ruling_elsewhere_rejects_the_point_without_the_judge(): void
     {
-        $fatwa = $this->searchFatwa('خاتم الذهب', answer: [
-            [['type' => 'text', 'text' => 'يحرم على الرجل لبس خاتم الذهب لورود النهي الصريح عن ذلك في الأحاديث الصحيحة.']],
-            [['type' => 'text', 'text' => 'ويجوز للرجل لبس خاتم الفضة لورود ذلك في السنة الصحيحة عن النبي.']],
-        ]);
-        // Cites only the silver-ring sentence for a claim about the gold ring.
-        $line = $this->summaryLines(
-            $this->headerLine('agree', 'خاتم الذهب'),
-            $this->pointLine('agreed', 'خاتم الذهب', 'يجوز للرجل لبس خاتم الذهب لورود ذلك في السنة الصحيحة.', ['F1'], ['F1.S2']),
-        );
+        config(['fatwarag.summary.claims_judge' => false]);
+        $fatwa = $this->goldRingFatwa();
+        $line = $this->goldRingLine();
 
         SummaryWriter::fake([$line, $line]);
         EntailmentJudge::fake()->preventStrayPrompts();
@@ -736,6 +730,57 @@ class SummaryWriterTest extends TestCase
         $this->assertSame(['status' => 'failed'], app(SummaryWriter::class)->write('سؤال', collect([$fatwa]), 'ar'));
         EntailmentJudge::assertNeverPrompted();
         SummaryWriter::assertPrompted(fn (AgentPrompt $prompt): bool => $prompt->contains('a cited fatwa gives a different ruling on the same thing'));
+    }
+
+    /**
+     * With the claims judge on, the heuristic ruling checks don't veto (they misread correct paraphrases): the point
+     * goes to the judge, and what the judge finds unsupported is not shown.
+     */
+    public function test_with_the_judge_on_a_heuristic_flag_goes_to_the_judge_which_rejects_it(): void
+    {
+        $fatwa = $this->goldRingFatwa();
+        $line = $this->goldRingLine();
+
+        SummaryWriter::fake([$line, $line]);
+        EntailmentJudge::fake(fn (): array => ['verdicts' => [['id' => 'agreed', 'verdict' => 'not_supported', 'reason' => 'faked', 'sentences' => []]]]);
+
+        $this->assertSame(['status' => 'failed'], app(SummaryWriter::class)->write('سؤال', collect([$fatwa]), 'ar'));
+        EntailmentJudge::assertPrompted(fn (): bool => true);
+    }
+
+    /**
+     * A point the heuristics flag but the judge finds supported is shown: the judge reads meaning.
+     */
+    public function test_with_the_judge_on_a_point_the_heuristics_flag_but_the_judge_supports_is_shown(): void
+    {
+        $fatwa = $this->goldRingFatwa();
+        $line = $this->goldRingLine();
+
+        SummaryWriter::fake([$line]);
+        EntailmentJudge::fake(fn (): array => ['verdicts' => [['id' => 'agreed', 'verdict' => 'supported', 'reason' => 'faked', 'sentences' => []], ['id' => 'headline', 'verdict' => 'supported', 'reason' => 'faked', 'sentences' => []]]]);
+
+        $result = app(SummaryWriter::class)->write('سؤال', collect([$fatwa]), 'ar');
+
+        $this->assertNotSame('failed', $result['status'] ?? null);
+        $this->assertNotNull($result['summary']['agreed'] ?? null);
+    }
+
+    /** One fatwa: gold rings forbidden to men, silver rings allowed. */
+    private function goldRingFatwa(): mixed
+    {
+        return $this->searchFatwa('خاتم الذهب', answer: [
+            [['type' => 'text', 'text' => 'يحرم على الرجل لبس خاتم الذهب لورود النهي الصريح عن ذلك في الأحاديث الصحيحة.']],
+            [['type' => 'text', 'text' => 'ويجوز للرجل لبس خاتم الفضة لورود ذلك في السنة الصحيحة عن النبي.']],
+        ]);
+    }
+
+    /** A point that cites only the silver-ring sentence for a claim about the gold ring. */
+    private function goldRingLine(): string
+    {
+        return $this->summaryLines(
+            $this->headerLine('agree', 'خاتم الذهب'),
+            $this->pointLine('agreed', 'خاتم الذهب', 'يجوز للرجل لبس خاتم الذهب لورود ذلك في السنة الصحيحة.', ['F1'], ['F1.S2']),
+        );
     }
 
     public function test_a_reader_who_leaves_stops_the_summary_with_no_rewrite(): void

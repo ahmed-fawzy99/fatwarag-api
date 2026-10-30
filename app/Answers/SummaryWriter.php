@@ -543,7 +543,8 @@ class SummaryWriter implements Agent, HasProviderOptions
         $this->outOfOrder = [];
         $this->problems = [];
         $this->stagesSent = [];
-        $this->check->prepare($this->sourceTexts, $this->names);
+        // With the claims judge on, it decides what the heuristic ruling checks flag (they misread correct paraphrases).
+        $this->check->prepare($this->sourceTexts, $this->names, judged: $this->claimsJudge());
         $this->stage('writing');
 
         $model = (string) config('fatwarag.openrouter.models.summary');
@@ -726,6 +727,7 @@ class SummaryWriter implements Agent, HasProviderOptions
                 'checked' => $checked,
                 'skipped' => $skipped,
                 'rejections' => array_slice($this->check->rejections(), $rejectedBefore),
+                'deferred' => $this->check->deferred(),
                 'claim' => $this->claim($checked ?? $resolved),
             ]);
         }

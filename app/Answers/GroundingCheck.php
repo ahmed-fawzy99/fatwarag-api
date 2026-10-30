@@ -124,6 +124,17 @@ class GroundingCheck
     /** @var array<string, list<string>> */
     private array $names = [];
 
+    /**
+     * Whether the claims judge rules on every item this check passes. Then the heuristic ruling checks (numbers, ruling
+     * strength, anchoring, conditions, time, a cited fatwa's other ruling) don't veto: they misread correct paraphrases,
+     * and the judge reads meaning. What they flag is kept in `deferred()` for the logs. The structural checks (support
+     * quotes, wording coverage, the site's own voice, naming the source, reported views) still reject.
+     */
+    private bool $judged = false;
+
+    /** @var list<array{item: string, reason: string}> */
+    private array $deferred = [];
+
     /** @var list<array{item: string, reason: string}> */
     private array $rejections = [];
 
@@ -162,8 +173,10 @@ class GroundingCheck
      * @param  array<string, string>  $sources  full text of each retrieved fatwa, by public id
      * @param  array<string, list<string>>  $names  the names a fatwa can be attributed by (source, mufti), by public id
      */
-    public function prepare(array $sources, array $names = []): void
+    public function prepare(array $sources, array $names = [], bool $judged = false): void
     {
+        $this->judged = $judged;
+        $this->deferred = [];
         $this->normalizedSources = array_map(fn (string $text): string => Arabic::normalize(self::withoutQuestion($text)), $sources);
         $this->rawSources = $sources;
         $this->names = $names;
@@ -561,6 +574,19 @@ class GroundingCheck
             return null;
         };
 
+        // A heuristic ruling check: rejects, unless the claims judge rules on the item (then it is only noted).
+        $heuristic = function (string $reason) use ($label): bool {
+            if ($this->judged) {
+                $this->deferred[] = ['item' => $label, 'reason' => $reason];
+
+                return false;
+            }
+
+            $this->rejections[] = ['item' => $label, 'reason' => $reason];
+
+            return true;
+        };
+
         $support = $this->validSupport($item, $sources);
 
         if ($support === []) {
@@ -626,8 +652,8 @@ class GroundingCheck
         $prose = trim(implode(' ', array_map(fn (string $field): string => (string) ($item[$field] ?? ''), $proseFields)));
         $proseParts = [...array_map(fn (string $field): string => (string) ($item[$field] ?? ''), $proseFields), $heldBy];
 
-        if (! $this->allNumbersSupported($proseParts, $quotes, qualifiers: true)) {
-            return $reject('a number (or its unit) is not in its own support quotes');
+        if (! $this->allNumbersSupported($proseParts, $quotes, qualifiers: true) && $heuristic('a number (or its unit) is not in its own support quotes')) {
+            return null;
         }
 
         if ($this->speaksForItself($prose, $allNames)) {
@@ -635,12 +661,12 @@ class GroundingCheck
         }
 
         foreach ($proseParts as $part) {
-            if (! $this->polarity->consistent($part, $quotes)) {
-                return $reject('states a ruling (or its strength/negation) that its own support quotes do not state; quote the sentence that states the ruling');
+            if (! $this->polarity->consistent($part, $quotes) && $heuristic('states a ruling (or its strength/negation) that its own support quotes do not state; quote the sentence that states the ruling')) {
+                return null;
             }
 
-            if (! $this->polarity->anchored($part, $quotes)) {
-                return $reject('states a ruling for something its support gives a different ruling for; keep each ruling with what the fatwa says it about');
+            if (! $this->polarity->anchored($part, $quotes) && $heuristic('states a ruling for something its support gives a different ruling for; keep each ruling with what the fatwa says it about')) {
+                return null;
             }
         }
 
@@ -664,13 +690,13 @@ class GroundingCheck
 
         // With the claims judge off, these carry what it used to catch: a ruling keeps the condition its sentence
         // attaches to it («إذا جد به السير», «عند خوف النسيان», «بإذن زوجها») and its comparatives («فأكثر»).
-        if (! $this->keepsConditions($claimText, $support)) {
-            return $reject('drops or changes a condition its sentence attaches to the ruling («إذا…», «إلا…», «بشرط…», «بإذن…»); keep the condition and the case it applies to');
+        if (! $this->keepsConditions($claimText, $support) && $heuristic('drops or changes a condition its sentence attaches to the ruling («إذا…», «إلا…», «بشرط…», «بإذن…»); keep the condition and the case it applies to')) {
+            return null;
         }
 
         // A ruling's time or frequency must be its support's («كل شهر» for «كل عام»).
-        if ($this->changesTime($claimText, $quotes)) {
-            return $reject('a ruling\'s time or frequency is not in its own support; keep it as the fatwa gives it');
+        if ($this->changesTime($claimText, $quotes) && $heuristic('a ruling\'s time or frequency is not in its own support; keep it as the fatwa gives it')) {
+            return null;
         }
 
         // A cited fatwa that gives a different ruling on the same thing in sentences not cited contradicts it. A point
@@ -678,8 +704,8 @@ class GroundingCheck
         foreach ($reportsOthers ? [] : $citations as $fatwaId) {
             $fatwaText = self::withoutQuestion($this->rawSources[$fatwaId] ?? '');
 
-            if ($this->polarity->contradictedBy($claimText, $fatwaText)) {
-                return $reject('a cited fatwa gives a different ruling on the same thing; cite the sentence that states its ruling on it');
+            if ($this->polarity->contradictedBy($claimText, $fatwaText) && $heuristic('a cited fatwa gives a different ruling on the same thing; cite the sentence that states its ruling on it')) {
+                return null;
             }
 
             if (array_key_exists('title', $item) && $this->polarity->contradictedBy((string) $item['title'], $fatwaText)) {
@@ -1696,6 +1722,16 @@ class GroundingCheck
     public function rejections(): array
     {
         return $this->rejections;
+    }
+
+    /**
+     * What the heuristic ruling checks flagged on items left to the claims judge (see `$judged`).
+     *
+     * @return list<array{item: string, reason: string}>
+     */
+    public function deferred(): array
+    {
+        return $this->deferred;
     }
 
     /**
