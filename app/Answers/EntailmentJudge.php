@@ -55,6 +55,10 @@ class EntailmentJudge implements Agent, HasStructuredOutput
             the numbers of the sentences that state what the evidence doesn't support (the unsupported ruling,
             condition, number or attribution is in that sentence itself). Leave it empty when the verdict is
             "supported", when the problem is the title or "Held by", or when it can't be pinned to whole sentences.
+            Set "consensus_only" to true only when the verdict is not "supported" for one reason alone: the claim
+            presents as shared by all its sources (an agreed point, "the sources agree", a "Held by" naming several)
+            something only some of them state, while every ruling, condition and number in it is stated by at least
+            one cited source and none of them contradicts it. Otherwise set it to false.
             TEXT;
     }
 
@@ -81,6 +85,7 @@ class EntailmentJudge implements Agent, HasStructuredOutput
                 'reason' => $schema->string()->required(),
                 'verdict' => $schema->string()->enum(['supported', 'contradicted', 'not_supported'])->required(),
                 'sentences' => $schema->array()->items($schema->integer())->required(),
+                'consensus_only' => $schema->boolean()->required(),
             ]))->required(),
         ];
     }
@@ -170,7 +175,7 @@ class EntailmentJudge implements Agent, HasStructuredOutput
 
             // The same id answered twice: the stricter verdict stands, whatever the order; the sentences it names add up.
             if (! isset($verdicts[$id]) || self::strictness($value) > self::strictness($verdicts[$id]['verdict'])) {
-                $verdicts[$id] = ['verdict' => $value, 'reason' => (string) ($verdict['reason'] ?? ''), 'sentences' => [...($verdicts[$id]['sentences'] ?? []), ...$sentences]];
+                $verdicts[$id] = ['verdict' => $value, 'reason' => (string) ($verdict['reason'] ?? ''), 'sentences' => [...($verdicts[$id]['sentences'] ?? []), ...$sentences], 'consensusOnly' => ($verdict['consensus_only'] ?? false) === true];
             } else {
                 $verdicts[$id]['sentences'] = [...$verdicts[$id]['sentences'], ...$sentences];
             }
@@ -198,6 +203,16 @@ class EntailmentJudge implements Agent, HasStructuredOutput
     public static function supported(array $verdicts, string $id): bool
     {
         return ($verdicts[$id]['verdict'] ?? null) === self::SUPPORTED;
+    }
+
+    /**
+     * Whether the judge's only objection is that the claim presents as shared by all its sources what only some state.
+     *
+     * @param  array<string, array{verdict: string, reason: string, sentences?: list<int>, consensusOnly?: bool}>  $verdicts
+     */
+    public static function consensusOnly(array $verdicts, string $id): bool
+    {
+        return ($verdicts[$id]['verdict'] ?? null) !== self::SUPPORTED && ($verdicts[$id]['consensusOnly'] ?? false) === true;
     }
 
     /**

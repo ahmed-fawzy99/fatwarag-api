@@ -1058,6 +1058,14 @@ class SummaryWriter implements Agent, HasProviderOptions
             // A pruned item stands only if PruneJudge finds it supported and that nothing it left out changes the rest.
             $item['judged'] = $step === 'reclaims' ? PruneJudge::passes($result, $item['key']) : EntailmentJudge::supported($result, $item['key']);
 
+            if (! $item['judged'] && $step === 'claims' && $item['section'] === 'agreed' && EntailmentJudge::consensusOnly($result, $item['key'])) {
+                // «العهدة على المصدر»: everything it says is in the sources; only "all of them agree" isn't. It is shown
+                // under the neutral heading, claiming no agreement and naming no holders, instead of being dropped.
+                $item['neutral'] = true;
+                $item['judged'] = true;
+                Log::info('Summary agreed point shown without the agreement framing');
+            }
+
             if (! $item['judged'] && $step === 'claims' && $this->rejudge($i, EntailmentJudge::failingSentences($result, $item['key']))) {
                 return; // the sentences the judge named are pruned, and the rest is judged once more
             }
@@ -1091,7 +1099,7 @@ class SummaryWriter implements Agent, HasProviderOptions
             $item['english'] = $english;
             $isPoint = in_array($item['section'], ['agreed', 'view'], true);
             $complete = $isPoint
-                ? (! empty($item['checked']['_relabel']) || isset($english["{$item['key']}.title"])) && isset($english["{$item['key']}.body"])
+                ? (! empty($item['checked']['_relabel']) || ! empty($item['neutral']) || isset($english["{$item['key']}.title"])) && isset($english["{$item['key']}.body"])
                 : isset($english["{$item['key']}.text"]);
             $item['state'] = $complete ? 'passed' : 'failed';
         }
@@ -1576,6 +1584,10 @@ class SummaryWriter implements Agent, HasProviderOptions
             return null;
         }
 
+        if (! empty($agreedItem['neutral'])) {
+            $checked['headline'] = GroundingCheck::SOURCES_SAY_HEADLINE;
+        }
+
         $differ = $checked['kind'] === 'differ';
         $agreed = $agreedItem ? $this->shown($agreedItem, 0) : null;
         $views = $differ ? array_map(fn (array $item, int $i): array => $this->shown($item, $i), $viewItems, array_keys($viewItems)) : [];
@@ -1652,9 +1664,18 @@ class SummaryWriter implements Agent, HasProviderOptions
         if (in_array($item['section'], ['agreed', 'view'], true)) {
             $relabelled = ! empty($checked['_relabel']);
             $point = $this->presentPoint(GroundingCheck::labelled($checked, $item['section'] === 'view' ? $index : null));
+            $neutral = ! empty($item['neutral']);
+
+            if ($neutral) {
+                $point = [...$point, 'title' => GroundingCheck::SOURCES_SAY_HEADLINE, 'heldBy' => null];
+            }
 
             if ($this->locale === 'ar') {
                 return $point;
+            }
+
+            if ($neutral) {
+                return [...$point, 'title' => SummaryTranslator::SOURCES_SAY_HEADLINE, 'body' => $item['english']["{$key}.body"]];
             }
 
             return [

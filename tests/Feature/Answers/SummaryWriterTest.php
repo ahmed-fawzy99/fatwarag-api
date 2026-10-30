@@ -817,6 +817,40 @@ class SummaryWriterTest extends TestCase
             && str_contains($request['text'], 'no support'));
     }
 
+    /**
+     * «العهدة على المصدر»: an agreed point the judge rejects only for claiming all its sources agree is shown under the
+     * neutral heading, naming no holders, instead of being dropped.
+     */
+    public function test_an_agreed_point_rejected_only_for_its_agreement_framing_is_shown_neutrally(): void
+    {
+        [$fatwa, $other] = $this->fatwas();
+
+        SummaryWriter::fake([$this->modelOutput()]);
+        EntailmentJudge::fake(fn (): array => ['verdicts' => [
+            ['id' => 'agreed', 'verdict' => 'not_supported', 'reason' => 'only one source states it', 'sentences' => [], 'consensus_only' => true],
+            ['id' => 'headline', 'verdict' => 'supported', 'reason' => '', 'sentences' => [], 'consensus_only' => false],
+        ]]);
+
+        $result = app(SummaryWriter::class)->write('سؤال', collect([$fatwa, $other]), 'ar');
+
+        $this->assertSame('ok', $result['status']);
+        $this->assertSame(GroundingCheck::SOURCES_SAY_HEADLINE, $result['summary']['headline']);
+        $this->assertSame(GroundingCheck::SOURCES_SAY_HEADLINE, $result['summary']['agreed']['title']);
+        $this->assertNull($result['summary']['agreed']['heldBy']);
+    }
+
+    public function test_an_agreed_point_rejected_for_its_content_is_still_dropped(): void
+    {
+        [$fatwa, $other] = $this->fatwas();
+
+        SummaryWriter::fake([$this->modelOutput(), $this->modelOutput()]);
+        EntailmentJudge::fake(fn (): array => ['verdicts' => [
+            ['id' => 'agreed', 'verdict' => 'not_supported', 'reason' => 'wrong ruling', 'sentences' => [], 'consensus_only' => false],
+        ]]);
+
+        $this->assertSame(['status' => 'failed'], app(SummaryWriter::class)->write('سؤال', collect([$fatwa, $other]), 'ar'));
+    }
+
     public function test_a_reader_who_leaves_stops_the_summary_with_no_rewrite(): void
     {
         [$fatwa, $other] = $this->fatwas();
