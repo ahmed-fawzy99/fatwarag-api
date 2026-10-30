@@ -36,5 +36,15 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!-- Tests never reach the real Telegram bot or other paid/outside services configured in .env. -->
+        <env name="TELEGRAM_BOT_TOKEN" value=""/>
+        <env name="TELEGRAM_CHAT_ID" value=""/>
+        <env name="OPENROUTER_API_KEY" value=""/>
+        <env name="CLOUDFLARE_API_TOKEN" value=""/>
+        <!-- Tests never reach the real Telegram bot or other paid/outside services configured in .env. -->
+        <env name="TELEGRAM_BOT_TOKEN" value=""/>
+        <env name="TELEGRAM_CHAT_ID" value=""/>
+        <env name="OPENROUTER_API_KEY" value=""/>
+        <env name="CLOUDFLARE_API_TOKEN" value=""/>
     </php>
 </phpunit>
