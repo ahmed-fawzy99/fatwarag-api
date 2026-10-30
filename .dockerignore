@@ -1,0 +1,47 @@
+# secrets: never baked into an image
+.env
+.env.*
+!.env.example
+
+# deps and builds are produced inside the image
+vendor/
+node_modules/
+public/build/
+public/hot
+public/storage
+database/*.sqlite
+
+# runtime state
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/framework/testing/*
+storage/app/*
+bootstrap/cache/*
+!**/.gitignore
+
+# tooling and local-only files
+# The Octane installer's local FrankenPHP binary and Caddy data; the image ships its own frankenphp on PATH.
+/frankenphp
+**/caddy
+.git
+.gitignore
+.gitattributes
+.idea
+.vscode
+.junie
+.agents
+.claude
+.superpowers
+.phpunit.result.cache
+.phpunit.cache
+tests/
+phpunit.xml
+AGENTS.md
+CLAUDE.md
+boost.json
+compose.yaml
+compose.prod.yaml
+Dockerfile
+README.md

@@ -1,0 +1,62 @@
+# FrankenPHP for Octane in the production image: Octane's stub Caddyfile with one fixed listener.
+#   :8080  plain HTTP (unprivileged). Publish it on 127.0.0.1; the reverse proxy on the host terminates TLS.
+# Octane fills the {$CADDY_*}, {$APP_*} and worker placeholders when it starts the server.
+{
+	{$CADDY_GLOBAL_OPTIONS}
+	auto_https off
+
+	admin {$CADDY_SERVER_ADMIN_HOST}:{$CADDY_SERVER_ADMIN_PORT}
+
+	frankenphp {
+		worker {
+			file "{$APP_PUBLIC_PATH}/frankenphp-worker.php"
+			{$CADDY_SERVER_WORKER_DIRECTIVE}
+			{$CADDY_SERVER_WATCH_DIRECTIVES}
+		}
+	}
+}
+
+:8080 {
+	log {
+		level {$CADDY_SERVER_LOG_LEVEL}
+		format filter {
+			wrap {$CADDY_SERVER_LOGGER}
+			fields {
+				request>uri query {
+					replace authorization REDACTED
+				}
+			}
+		}
+	}
+
+	route {
+		root * "{$APP_PUBLIC_PATH}"
+
+		# Compress only these types, never text/event-stream: the summary stream must reach the reader
+		# event by event, and a compressor holds bytes back until its buffer fills.
+		encode {
+			zstd
+			br
+			gzip
+			match {
+				header Content-Type text/html*
+				header Content-Type text/css*
+				header Content-Type text/plain*
+				header Content-Type text/xml*
+				header Content-Type text/javascript*
+				header Content-Type application/json*
+				header Content-Type application/javascript*
+				header Content-Type application/xml*
+				header Content-Type image/svg+xml*
+			}
+		}
+
+		php_server {
+			index frankenphp-worker.php
+			try_files {path} frankenphp-worker.php
+			resolve_root_symlink
+			# The proxy terminates TLS, so tell Laravel the request was HTTPS (asset and redirect URLs).
+			env HTTPS {$APP_FORCE_HTTPS:on}
+		}
+	}
+}

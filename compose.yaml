@@ -1,0 +1,25 @@
+# Local development services. The production image for Hetzner is defined separately.
+services:
+  pgsql:
+    image: pgvector/pgvector:pg18
+    environment:
+      POSTGRES_DB: fatwarag
+      POSTGRES_USER: fatwarag
+      POSTGRES_PASSWORD: fatwarag
+    ports:
+      - "54329:5432"
+    volumes:
+      - pgsql-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "fatwarag"]
+      interval: 5s
+      retries: 10
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "63799:6379"
+    volumes:
+      - redis-data:/data
+volumes:
+  pgsql-data:
+  redis-data:

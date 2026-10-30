@@ -1,0 +1,615 @@
+{
+ "intro": {
+  "ar": {
+   "paragraphs": [
+    "المقبول : إذا انطبقت عليه شروط القبول ، وكان صالحا لأن يُحْتج به ، ويُعمل بمضمونه .",
+    "المردود : إذا لم تنطبق عليه شروط القبول ."
+   ],
+   "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+   "sourceUrl": "https://islamqa.info/ar/answers/126978"
+  },
+  "en": {
+   "paragraphs": [
+    "Maqbool (accepted): if the hadeeth fulfilled the conditions of acceptability and was fit to be quoted as evidence and acted upon.",
+    "Mardood (rejected): if it did not fulfill the conditions of acceptability."
+   ],
+   "sourceName": "Islam Question & Answer (islamqa.info)",
+   "sourceUrl": "https://islamqa.info/en/answers/126978"
+  }
+ },
+ "terms": [
+  {
+   "term": "mutawatir",
+   "labelAr": "متواتر",
+   "labelEn": "Mutawatir (mass-transmitted)",
+   "level": "sahih",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "متواتر : إذا جاء الحديث من طرق وروايات كثيرة جدا ."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/126978"
+    },
+    "acting": {
+     "paragraphs": [
+      "وأما حكمه : فالخبر المتواتر يجب تصديقه ضرورة ، لأنه مفيد للعلم القطعي الضروري ؛ وإن لم يدل عليه دليل آخر ، ولا حاجة إلى البحث عن أحوال رواته ، وهذا أمر لا يستريب فيه عاقل ."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/34651"
+    }
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "Mutawaatir: if the hadeeth was narrated via many isnaads and narrations."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/126978"
+    },
+    "acting": {
+     "paragraphs": [
+      "With regard to the ruling on mutawaatir reports: a mutawaatir report must be accepted, because it is definitive and certain, even if there is no other corroborating evidence. And there is no need to examine the biographies of its narrators. This is a matter concerning which no wise man will have any doubts."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/34651"
+    }
+   }
+  },
+  {
+   "term": "sahih",
+   "labelAr": "صحيح",
+   "labelEn": "Sahih (authentic)",
+   "level": "sahih",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "الصحيح : إذا انطبقت عليه أعلى شروط القبول ."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/126978"
+    },
+    "acting": {
+     "paragraphs": [
+      "الأحاديث التي يجب الأخذ بها والاستدلال بها هي الأحاديث المقبولة : الصحيحة أو الحسنة ، أما الأحاديث الضعيفة أو المكذوبة فلا يجوز الاستدلال بها على الحكم الشرعي"
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/112086"
+    }
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "Saheeh: if it fulfilled the highest conditions of acceptability."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/126978"
+    },
+    "acting": {
+     "paragraphs": [
+      "The ahaadeeth which must be accepted and taken as evidence are the acceptable ahaadeeth: those which are saheeh or hasan. As for da’eef (weak) and false ahaadeeth, it is not permissible to use them as evidence with regard to shar’i rulings."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/112086"
+    }
+   }
+  },
+  {
+   "term": "sahih_lighayrih",
+   "labelAr": "صحيح لغيره",
+   "labelEn": "Sahih li-ghayrihi (authentic due to corroboration)",
+   "level": "sahih",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "والصحيح لغيره هو: الحسن لذاته إذا روي من طريق آخر مثله، أو أقوى منه، وسمي صحيحاً لغيره، لأن الصحة لم تأت من ذات السند، وإنما جاءت بانضمام غيره إليه."
+     ],
+     "sourceName": "إسلام ويب - مركز الفتوى (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/ar/fatwa/11828/"
+    },
+    "acting": {
+     "paragraphs": [
+      "فإن الحديث النبوي الشريف إما أن يكون مقبولا أو مردودا، والحديث المقبول هو الذي توفرت فيه شروط القبول المعروفة عند أهل العلم بأن كان صحيحا، أو صحيحا لغيره، أو حسنا أو حسنا لغيره- وحكمه وجوب العمل به إذا سلم من المعارض ومن الناسخ ونحو ذلك مما هو مبسوط في محله."
+     ],
+     "sourceName": "إسلام ويب - مركز الفتوى (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/ar/fatwa/190693/"
+    }
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "If the precision is lacking and is not complete, then it is hasan li dhaatihi (hasan in and of itself). If it has a number of isnaads, then it is saheeh li ghayrihi (saheeh because of corroborating evidence)."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/79163"
+    },
+    "acting": null
+   }
+  },
+  {
+   "term": "isnaduhu_sahih",
+   "labelAr": "إسناده صحيح",
+   "labelEn": "Isnaduhu sahih (its chain is authentic)",
+   "level": "sahih",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "ويقول ابن كثير :",
+      "الحكم بالصحة أو الحسن على الإسناد لا يلزم منه الحكم بذلك على المتن ، إذ قد يكون شاذاً أو معللاً"
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/122507"
+    },
+    "acting": {
+     "paragraphs": [
+      "يقول الحافظ ابن الصلاح رحمه الله :",
+      "غير أن المصنف المعتمد منهم إذا اقتصر على قوله : إنه صحيح الإسناد ، ولم يذكر له علة ، ولم يقدح فيه ، فالظاهر منه الحكم له بأنه صحيح في نفسه ؛ لأن عدم العلة والقادح هو الأصل والظاهر ."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/122507"
+    }
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "Ibn Katheer says:",
+      "The fact that the isnaad is deemed to be saheeh or hasan does not necessarily mean that the same applies to the text, because it may be shaadhdh (odd) or mu’allal (faulty)."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/122507"
+    },
+    "acting": {
+     "paragraphs": [
+      "Al-Haafiz Ibn al-Salaah (may Allah have mercy on him) said:",
+      "But a reliable scholar may say in his book “it has a saheeh isnaad” and not mention any ‘illah (fault), or criticize it, so it may be understood that he deems it to be saheeh in and of itself, because the absence of any ‘illah (fault) or qaadih (flaw) is the basic principle."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/122507"
+    }
+   }
+  },
+  {
+   "term": "hasan",
+   "labelAr": "حسن",
+   "labelEn": "Hasan (good)",
+   "level": "hasan",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "الحسن : إذا انطبقت عليه أدنى شروط القبول ."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/126978"
+    },
+    "acting": {
+     "paragraphs": [
+      "والحديث الحسن بقسميه كالصحيح في الاحتجاج به - وإن كان دونه في القوة - لذلك احتج به الفقهاء ، وعملوا به ، وعلى الاحتجاج به معظم المحدثين والأصوليين ."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/196606"
+    }
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "Hasan: if it fulfilled the minimal conditions of acceptability."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/126978"
+    },
+    "acting": {
+     "paragraphs": [
+      "A ‘Hasan’ Hadith may be cited in Fatwas similar to a ‘Sahih’ Hadith, although it ranks below it in terms of validity (the evidentiary strength). But if there is a stronger Hadith - whether ‘Hasan’ or ‘Sahih’ - it takes precedence over it."
+     ],
+     "sourceName": "Islamweb - Fatwa Center (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/en/fatwa/521182/"
+    }
+   }
+  },
+  {
+   "term": "hasan_lighayrih",
+   "labelAr": "حسن لغيره",
+   "labelEn": "Hasan li-ghayrihi (good due to corroboration)",
+   "level": "hasan",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "والحديث الحسن لغيره هو : الضعيف إذا تعددت طرقه ، ولم يكن سبب ضعفه فِسْقَ الراوي أو كَذِبَهٌ أو وهاءه .",
+      "فالحسن لغيره ضعيف في الأصل ، ارتقى إلى مرتبة الحسن لانجباره بتعدد طرقه ."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/196606"
+    },
+    "acting": {
+     "paragraphs": [
+      "فإن ما اصطلح العلماء على تسميته بـ(الحديث الحسن لغيره) هو من أنواع الحديث المقبول، فيحتج به كما يحتج بالحديث الصحيح -وإن كان دونه في المرتبة-."
+     ],
+     "sourceName": "إسلام ويب - مركز الفتوى (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/ar/fatwa/501460/"
+    }
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "Hadith Hasan Lighairihi (Hasan due to others) means, a number of similar weak Ahadith on a particular issue can be raised to the degree of Hasan (agreeable) if the weakness found in their reporters is of a mild nature. However, in case the weakness is severe (e.g., the reporter is accused of lying or the Hadith is itself irregular), such very weak Ahadith will not support each other and will remain weak."
+     ],
+     "sourceName": "Islamweb - Fatwa Center (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/en/fatwa/86128/"
+    },
+    "acting": {
+     "paragraphs": [
+      "Hadith Hasan Lighairihi is an acceptable Hadith so, the scholars are agreed that it should be accepted and should be acted according to it. This is the opinion of the majority of Muslim scholars."
+     ],
+     "sourceName": "Islamweb - Fatwa Center (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/en/fatwa/86128/"
+    }
+   }
+  },
+  {
+   "term": "isnaduhu_hasan",
+   "labelAr": "إسناده حسن",
+   "labelEn": "Isnaduhu hasan (its chain is good)",
+   "level": "hasan",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "ويقول ابن كثير :",
+      "الحكم بالصحة أو الحسن على الإسناد لا يلزم منه الحكم بذلك على المتن ، إذ قد يكون شاذاً أو معللاً"
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/122507"
+    },
+    "acting": null
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "Ibn Katheer says:",
+      "The fact that the isnaad is deemed to be saheeh or hasan does not necessarily mean that the same applies to the text, because it may be shaadhdh (odd) or mu’allal (faulty)."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/122507"
+    },
+    "acting": null
+   }
+  },
+  {
+   "term": "jayyid",
+   "labelAr": "جيد",
+   "labelEn": "Jayyid (good / its chain is good)",
+   "level": "hasan",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "فإن وصف الحديث بالجيد أو المجود يطلق غالبا على الحديث المقبول، فيطلق على الحديث الصحيح، وعلى الحديث الحسن."
+     ],
+     "sourceName": "إسلام ويب - مركز الفتوى (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/ar/fatwa/401467/"
+    },
+    "acting": null
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "In many cases the hadeeth scholars used other terms in addition to the terms mentioned above. For example, they sometimes call a hasan isnaad “jayyid”; sometimes they describe a saheeh hadeeth as “in accordance with the conditions of the two shaykhs (al-Bukhaari and Muslim)”; and other similar phrases."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/126978"
+    },
+    "acting": null
+   }
+  },
+  {
+   "term": "daif",
+   "labelAr": "ضعيف",
+   "labelEn": "Da'if (weak)",
+   "level": "daif",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "كثيرا ما يكون سبب الضعف راجعا إلى الإسناد وحده، كعدم تحقق الشرط الأول – اتصال السند- وذلك بأن يكون راوي الحديث يرويه عن شيخ لم يلتق به، أو لم يعش معه في عصر واحد.",
+      "أو يكون الضعف بسبب أن الراوي ضعيف؛ كأن يكون من عادته النسيان والخطأ ونحو هذا.",
+      "فإذا كان السند ضعيفا؛ يصبح غير صالح للاعتماد عليه في نسبة متن الحديث إلى النبي صلى الله عليه وسلم؛ لأن الإسناد هو دليل الإثبات."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/324996"
+    },
+    "acting": {
+     "paragraphs": [
+      "وهذا القسم لا يجوز الاحتجاج به في العقائد ولا في الحلال والحرام، وإنما جوَّز بعض المتأخرين العمل به في فضائل الأعمال بشروط وهي:",
+      "أن يكون الحديث في فضائل الأعمال.",
+      "أن يكون ضعفه غير شديد.",
+      "أن يندرج تحت أصل معمول به.",
+      "أن لا يعتقد ثبوته عند العمل به، بل يعتقد الاحتياط."
+     ],
+     "sourceName": "إسلام ويب - مركز الفتوى (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/ar/fatwa/13202/"
+    }
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "The Da'ef (weak) Hadith is that which fails to reach the status of Hasan."
+     ],
+     "sourceName": "Islamweb - Fatwa Center (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/en/fatwa/86128/"
+    },
+    "acting": {
+     "paragraphs": [
+      "The Da'ef Hadith is not accepted and not put into actions if the matter is related to Halal, Haram, and Wajibat since such rulings cannot be proved through a weak Hadith. However, many scholars are of the opinion that a weak Hadith could be accepted by some conditions if it is related to the subject of virtues of some goods deeds."
+     ],
+     "sourceName": "Islamweb - Fatwa Center (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/en/fatwa/86128/"
+    }
+   }
+  },
+  {
+   "term": "isnaduhu_daif",
+   "labelAr": "إسناده ضعيف",
+   "labelEn": "Isnaduhu da'if (its chain is weak)",
+   "level": "daif",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "أما عبارة \"إسناده ضعيف \" فهي تحتمل الحكم على الحديث بأنه ضعيف، وذلك إن لم يكن له إلا هذا الإسناد، أو كان مطلق هذه العبارة يعني أن الحديث ضعيف بكل أسانيده.",
+      "وتحتمل الحكم على هذا الإسناد بالضعف دون الحكم على الحديث بأنه ضعيف، و يكون الحديث له طرق أخرى."
+     ],
+     "sourceName": "إسلام ويب - مركز الفتوى (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/ar/fatwa/193767/"
+    },
+    "acting": {
+     "paragraphs": [
+      "وإن لم تعلم صحة الحديث فلا تجزم بنسبته للنبي صلى الله عليه وسلم؛ بل بين ضعفه، أو انقله بصيغة تمريض كأن تقول: يُذكر، أو فيما يروى، أو تقول: لا أعلم بصحته ونحو ذلك، كما قال العراقي"
+     ],
+     "sourceName": "إسلام ويب - مركز الفتوى (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/ar/fatwa/193767/"
+    }
+   },
+   "en": null
+  },
+  {
+   "term": "mursal",
+   "labelAr": "مرسل",
+   "labelEn": "Mursal (chain omits the Companion)",
+   "level": "daif",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "\" الحديث المرسل \" هو ذلك الحديث الذي يرويه التابعي عن النبي صلى الله عليه وسلم دون ذكر الصحابي في سنده ."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/186055"
+    },
+    "acting": {
+     "paragraphs": [
+      "الحديث المرسل من أقسام الحديث الضعيف ، وليس بحجة عند جماهير أهل العلم بالحديث .",
+      "ذهب كثير من الفقهاء إلى القول بالاحتجاج بالمرسل ، ولكن لهم في ذلك شروط .",
+      "أما إذا انفرد المرسل بالحكم دون أن يتقوى بعاضد فليس بحجة ، وهو من أقسام الحديث الضعيف ."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/186055"
+    }
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "A hadeeth is called a “mursal hadeeth” if the one who narrated it from the Prophet (blessings and peace of Allah be upon him) is a Taabi’i and not a Sahaabi. It is possible to differentiate between a Sahaabi and a Taabi’i by referring to books of biography."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/130686"
+    },
+    "acting": {
+     "paragraphs": [
+      "They also differ in opinion with regard to the Mursal Hadeeth; Abu Haneefah, Maalik and other Imaams are of the view that it is permissible to use it as evidence whereas the Shaafi‘i School and the majority of the scholars are not of the view that it is permissible to use it as evidence. The Shaafi‘i School said it may be used as evidence on condition that it is narrated by senior Taabi‘is (from the generation that followed the generation of the Companions), like the Mursal Ahaadeeth transmitted by Sa‘eed ibn Al-Musayyib."
+     ],
+     "sourceName": "Islamweb - Fatwa Center (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/en/fatwa/284839/"
+    }
+   }
+  },
+  {
+   "term": "munqati",
+   "labelAr": "منقطع",
+   "labelEn": "Munqati' (broken chain)",
+   "level": "daif",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "الشرط الأول: اتصال السند: وهو أن يكون كل راو في السند قد أخذ الحديث عن الراوي قبله (شيخه) مباشرة، إلى أن يصل السند إلى نهايته.",
+      "فلهذا وجود انقطاع في سلسلة السند يضعفه ويخرجه عن حدّ الصحة."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/277631"
+    },
+    "acting": {
+     "paragraphs": [
+      "الحديث الضعيف أقسام، إن كان حسنا جيد الإسناد يعمل به، وإن كان ضعيف المرة فلا يعمل به، الضعيف المرة إذا كان في إسناده كذاب، أو في إسناده سيئ الحفظ جدًا، أو منقطع الإسناد لا يعمل به."
+     ],
+     "sourceName": "موقع سماحة الشيخ عبد العزيز بن باز (binbaz.org.sa)",
+     "sourceUrl": "https://binbaz.org.sa/fatwas/1014/هل-يعمل-بالحديث-الضعيف"
+    }
+   },
+   "en": null
+  },
+  {
+   "term": "muallal",
+   "labelAr": "معلّل",
+   "labelEn": "Mu'allal (hidden defect)",
+   "level": "daif",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "قال ابن الصلاح رحمه الله تعالى:",
+      "فالحديث المعلل هو الحديث الذي اطلع فيه على علة تقدح في صحته، مع أن ظاهره السلامة منها",
+      "والسبيل إلى معرفتها هو بجمع أسانيد الحديث وطرقه ودراستها ومقارنة بعضها ببعض."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/324996"
+    },
+    "acting": null
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "A “fault” is a subtle problem that undermines the soundness of the hadeeth, which can be detected only by the well versed scholars of hadeeth."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/79163"
+    },
+    "acting": null
+   }
+  },
+  {
+   "term": "shadh",
+   "labelAr": "شاذ",
+   "labelEn": "Shadh (anomalous)",
+   "level": "daif",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "فالحديث الشاذ هو الحديث الذي يرويه الثقة ويخالف فيه الرواة الثقات، قال الشافعي: هو أن يروي الثقة حديثا يخالف ما روى الناس وليس من ذلك أن يروي ما لم يرو غيره."
+     ],
+     "sourceName": "إسلام ويب - مركز الفتوى (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/ar/fatwa/102205/"
+    },
+    "acting": null
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "What is meant by “odd” is anything in which the narrator narrates something that contradicts the narration of a sounder narrator."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/79163"
+    },
+    "acting": null
+   }
+  },
+  {
+   "term": "daif_jiddan",
+   "labelAr": "ضعيف جدًا",
+   "labelEn": "Da'if jiddan (very weak)",
+   "level": "very_daif",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "وضعيف لا يعتبر به ولا تقوم به الحجة لشدة ضعفه، وذلك بأن يكون فيه متهم بالكذب، أو من هو فاحش الغلط، أو لأن فيه انقطاعًا أو إرسالًا ولا متابع له ولا شاهد أو ما أشبه ذلك."
+     ],
+     "sourceName": "موقع سماحة الشيخ عبد العزيز بن باز (binbaz.org.sa)",
+     "sourceUrl": "https://binbaz.org.sa/fatwas/19992/انواع-الحديث-الضعيف"
+    },
+    "acting": {
+     "paragraphs": [
+      "ولخص الحافظ ابن حجر رحمه الله شروط جواز العمل بالحديث الضعيف ، وهي :",
+      "أن يكون الضعف غير شديد ، فلا يعمل بحديث انفرد به أحدٌ من الكذابين أو المتهمين بالكذب أو من فحش غلطه ."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/44877"
+    }
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "However, in case the weakness is severe (e.g., the reporter is accused of lying or the Hadith is itself irregular), such very weak Ahadith will not support each other and will remain weak."
+     ],
+     "sourceName": "Islamweb - Fatwa Center (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/en/fatwa/86128/"
+    },
+    "acting": {
+     "paragraphs": [
+      "Al-Haafiz ibn Hajar (may Allah have mercy on him) summed up the conditions for it to be permissible to act upon a weak hadith, which are as follows:",
+      "It should not be very weak, and one should not act upon a hadith which was narrated only by one of the liars or those who are accused of lying, or whose mistakes are serious."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/44877"
+    }
+   }
+  },
+  {
+   "term": "munkar",
+   "labelAr": "منكر",
+   "labelEn": "Munkar (denounced)",
+   "level": "very_daif",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "وقد اشتهر إطلاق مصطلح \"المنكر\" على:",
+      "ما تفرد به الراوي الذي فيه نوع من الضعف، أو خالف فيه غيره ممن هو أقوى منه."
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/282116"
+    },
+    "acting": {
+     "paragraphs": [
+      "قال ابن كثير رحمه الله تعالى:",
+      "وهو كالشاذ إن خالف راويه الثقات فمنكر مردود، وكذا إن لم يكن عدلا ضابطا، وإن لم يخالف، فمنكر مردود"
+     ],
+     "sourceName": "الإسلام سؤال وجواب (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/ar/answers/282116"
+    }
+   },
+   "en": null
+  },
+  {
+   "term": "matruk",
+   "labelAr": "متروك",
+   "labelEn": "Matruk (abandoned)",
+   "level": "very_daif",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "فإن (المتروك) رتبة من مراتب الجرح في الرواة، فالمحدثون يطلقون ذلك على الراوي الذي ترك الناس حديثه، لكونه متهما بالكذب."
+     ],
+     "sourceName": "إسلام ويب - مركز الفتوى (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/ar/fatwa/232843/"
+    },
+    "acting": {
+     "paragraphs": [
+      "وإذا تحقق كون الراوي متروكا، فإن حديثه يكون ساقطا، فلا يصلح أن يعتد به في تقوية أحاديث أخرى."
+     ],
+     "sourceName": "إسلام ويب - مركز الفتوى (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/ar/fatwa/232843/"
+    }
+   },
+   "en": null
+  },
+  {
+   "term": "mawdu",
+   "labelAr": "موضوع",
+   "labelEn": "Mawdu' (fabricated)",
+   "level": "mawdu",
+   "ar": {
+    "meaning": {
+     "paragraphs": [
+      "أما الحديث الموضوع فهو المختلق المصنوع المنسوب إلى النبي صلى الله عليه وسلم، وهو أقبح أنواع الضعيف، بل من العلماء من يعتبره قسماً مستقلاً وليس نوعاً من أنواع الحديث الضعيف."
+     ],
+     "sourceName": "إسلام ويب - مركز الفتوى (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/ar/fatwa/11828/"
+    },
+    "acting": {
+     "paragraphs": [
+      "فالحديث الموضوع لا تجوز نسبته لرسول الله صلى الله عليه وسلم، ولا يجوز العمل به، وقد نقل الإجماع على ذلك ابن عابدين في حاشيته (2/171)."
+     ],
+     "sourceName": "إسلام ويب - مركز الفتوى (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/ar/fatwa/199897/"
+    }
+   },
+   "en": {
+    "meaning": {
+     "paragraphs": [
+      "Mawdoo‘ (fabricated): if its isnaad includes anyone who was a liar or accused of lying."
+     ],
+     "sourceName": "Islam Question & Answer (islamqa.info)",
+     "sourceUrl": "https://islamqa.info/en/answers/126978"
+    },
+    "acting": {
+     "paragraphs": [
+      "It is strongly forbidden to narrate such Ahadith let alone acting according to it."
+     ],
+     "sourceName": "Islamweb - Fatwa Center (islamweb.net)",
+     "sourceUrl": "https://www.islamweb.net/en/fatwa/86128/"
+    }
+   }
+  }
+ ]
+}

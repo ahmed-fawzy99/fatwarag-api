@@ -1,0 +1,122 @@
+# Production stack for the Hetzner server: app (Octane on FrankenPHP), worker, scheduler, PostgreSQL + pgvector, Redis.
+#
+# Run it with the env file passed for compose's own interpolation too:
+#   docker compose --env-file .env.production -f compose.prod.yaml up -d --build
+# .env.production is provided by the owner and never committed.
+#
+# Only `app` publishes a port, and only on 127.0.0.1: a reverse proxy on the host terminates TLS.
+# PostgreSQL and Redis are reachable only from inside this stack's network.
+
+name: fatwarag-prod # not "api", which is the dev stack's project name (compose.yaml)
+
+x-laravel: &laravel
+  build:
+    context: .
+    target: production
+  image: fatwarag-api:${IMAGE_TAG:-latest}
+  env_file: ${ENV_FILE:-.env.production}
+  environment:
+    # Fixed by the stack, so the env file can't point the app at the wrong place.
+    APP_ENV: production
+    APP_DEBUG: "false"
+    DB_CONNECTION: pgsql
+    DB_HOST: pgsql
+    DB_PORT: "5432"
+    REDIS_HOST: redis
+    REDIS_PORT: "6379"
+    FATWARAG_RAW_PATH: /data/raw
+    LOG_CHANNEL: stderr
+    # serversideup's start-up automations build the config, route, view and event caches from this env on every
+    # start. Migrations are a separate step, never run by a container starting.
+    AUTORUN_ENABLED: "true"
+    AUTORUN_LARAVEL_MIGRATION: "false"
+    AUTORUN_LARAVEL_STORAGE_LINK: "false"
+  volumes:
+    # The harvested raw store (data/raw), read-only here. Importers read it; only the scheduler writes to it (below).
+    - ${RAW_HOST_PATH:-../data/raw}:/data/raw:ro
+  depends_on:
+    pgsql:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  restart: unless-stopped
+  logging: &logging
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "5"
+
+services:
+  # Each summary stream holds one Octane worker while it runs (up to a few minutes), so there are more workers than
+  # CPUs, and one visitor may have only 2 summaries running at once (SUMMARY_MAX_STREAMS_PER_CLIENT). Workers restart
+  # after 500 requests to bound memory growth.
+  app:
+    <<: *laravel
+    command: ["php", "artisan", "octane:start", "--server=frankenphp", "--host=0.0.0.0", "--port=8080",
+              "--workers=${OCTANE_WORKERS:-24}", "--max-requests=500", "--caddyfile=docker/Caddyfile"]
+    ports:
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-8080}:8080"
+    # The image's healthcheck: GET /up on :8080.
+    healthcheck:
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    stop_grace_period: 30s
+
+  worker:
+    <<: *laravel
+    command: ["php", "artisan", "queue:work", "--tries=3", "--sleep=3", "--max-time=3600"]
+    stop_signal: SIGTERM
+    stop_grace_period: 60s
+    healthcheck:
+      test: ["CMD", "healthcheck-queue"]
+      start_period: 20s
+
+  scheduler:
+    <<: *laravel
+    command: ["php", "artisan", "schedule:work"]
+    volumes:
+      # Read-write: the 3-day refresh (fatwas:refresh) saves new pages here and hadiths:export-pending writes the Dorar queue.
+      - ${RAW_HOST_PATH:-../data/raw}:/data/raw
+    stop_signal: SIGTERM
+    stop_grace_period: 30s
+    healthcheck:
+      test: ["CMD", "healthcheck-schedule"]
+      start_period: 20s
+
+  pgsql:
+    image: pgvector/pgvector:pg18
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:?set DB_DATABASE in .env.production}
+      POSTGRES_USER: ${DB_USERNAME:?set DB_USERNAME in .env.production}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env.production}
+    volumes:
+      - pgsql-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+    logging: *logging
+
+  redis:
+    image: redis:8-alpine
+    # AOF on, so queued jobs and counters survive a restart.
+    command: ["sh", "-c", "exec redis-server --appendonly yes --appendfsync everysec --requirepass \"$$REDIS_PASSWORD\""]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD in .env.production}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+    logging: *logging
+
+volumes:
+  pgsql-data:
+  redis-data:
