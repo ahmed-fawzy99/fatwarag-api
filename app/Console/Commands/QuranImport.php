@@ -14,7 +14,7 @@ class QuranImport extends Command
 
     public function handle(QuranImporter $importer): int
     {
-        $raw = $this->option('raw') ?: base_path('../data/raw/quran');
+        $raw = $this->option('raw') ?: rtrim(config('fatwarag.raw_path'), '/').'/quran';
         $sahih = $this->option('sahih') ?: base_path('../docs/en-sahih-international-with-footnote-tags.json');
 
         if (! File::exists("{$raw}/dl/qc_qpc_hafs.json") || ! File::exists($sahih)) {

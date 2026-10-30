@@ -13,7 +13,7 @@ class TafsirImport extends Command
 
     public function handle(TafsirImporter $importer): int
     {
-        $raw = $this->option('raw') ?: base_path('../data/raw/quran');
+        $raw = $this->option('raw') ?: rtrim(config('fatwarag.raw_path'), '/').'/quran';
 
         foreach ($importer->import($raw, $this->option('only') ?: null) as $key => $count) {
             $count === 0 ? $this->warn("{$key}: no passages found, kept what was stored") : $this->info("{$key}: {$count} passages");

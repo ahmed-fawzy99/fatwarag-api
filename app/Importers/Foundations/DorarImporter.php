@@ -54,7 +54,7 @@ class DorarImporter
 
     public function __construct(?string $root = null)
     {
-        $this->root = rtrim($root ?? base_path('../data/raw/dorar'), '/');
+        $this->root = rtrim($root ?? rtrim(config('fatwarag.raw_path'), '/').'/dorar', '/');
     }
 
     // ------------------------------------------------------------------ the harvester's query, ported exactly

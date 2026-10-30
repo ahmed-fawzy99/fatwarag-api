@@ -1,6 +1,7 @@
 # Production stack for the Hetzner server: app (Octane on FrankenPHP), worker, scheduler, PostgreSQL + pgvector, Redis.
 #
-# Run it with the env file passed for compose's own interpolation too:
+# Releases are automatic: a push to main runs CI, which publishes the image and runs deploy/deploy.sh on the server
+# (in /srv/fatwarag, next to .env.production). By hand, pass the env file for compose's own interpolation too:
 #   docker compose --env-file .env.production -f compose.prod.yaml up -d --build
 # .env.production is provided by the owner and never committed.
 #
@@ -10,10 +11,11 @@
 name: fatwarag-prod # not "api", which is the dev stack's project name (compose.yaml)
 
 x-laravel: &laravel
+  # Releases run the image CI published (deploy/deploy.sh sets APP_IMAGE); `build` is for a manual build on the server.
   build:
     context: .
     target: production
-  image: fatwarag-api:${IMAGE_TAG:-latest}
+  image: ${APP_IMAGE:-fatwarag-api:latest}
   env_file: ${ENV_FILE:-.env.production}
   environment:
     # Fixed by the stack, so the env file can't point the app at the wrong place.
