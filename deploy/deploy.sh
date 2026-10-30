@@ -26,8 +26,8 @@ compose up -d --wait pgsql redis
 echo "==> Migrating"
 compose run --rm --no-deps app php artisan migrate --force
 
-echo "==> Replacing the app, the worker and the scheduler"
-compose up -d --wait --remove-orphans app worker scheduler
+echo "==> Replacing the app, the worker, the scheduler and the tunnel"
+compose up -d --wait --remove-orphans app worker scheduler tunnel
 
 echo "$TAG" > RELEASE
 docker image prune -af --filter "until=168h" --filter "label=org.opencontainers.image.source=https://github.com/ahmed-fawzy99/fatwarag-api" >/dev/null
