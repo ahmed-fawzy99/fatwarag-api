@@ -615,6 +615,7 @@ class GroundingCheck
 
         $quotes = array_column($support, 'quote');
         $proseFields = array_values(array_diff($fields['prose'], ['title']));
+        $item = $this->attributeCopiedPreferences($item, $proseFields, $support, $names);
 
         // A title that isn't grounded is replaced by a neutral label («القول الثاني») rather than dropping a sound point;
         // see relabel(). Titles are a few words, so they are checked against the support quotes and the body.
@@ -1501,6 +1502,95 @@ class GroundingCheck
         }
 
         return null;
+    }
+
+    /**
+     * «على الصحيح», «والراجح»… copied with their neighbours word for word from the item's own support quotes, all of one
+     * source, are that source's words, not the site's: «عند <source>» is added right after them (unless already
+     * attributed), so the reader sees whose preference it is and the site-voice check passes. Copied from quotes of
+     * two or more sources, or not copied at all, the text is left as written (and still checked as before).
+     *
+     * @param  array<string, mixed>  $item
+     * @param  list<string>  $proseFields
+     * @param  list<array{fatwaId: string, quote: string}>  $support
+     * @param  array<string, list<string>>  $names
+     * @return array<string, mixed>
+     */
+    private function attributeCopiedPreferences(array $item, array $proseFields, array $support, array $names): array
+    {
+        $allNames = array_merge(...array_values($names) ?: [[]]);
+        $quotes = array_map(fn (array $quote): array => [...$quote, 'normalized' => ' '.Arabic::normalize($quote['quote']).' '], $support);
+
+        foreach ($proseFields as $field) {
+            $text = (string) ($item[$field] ?? '');
+
+            if ($text === '' || ! $this->speaksForItself($text, $allNames)) {
+                continue;
+            }
+
+            $words = preg_split('/(\s+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE) ?: [];
+            $added = [];
+
+            // Even indexes are words, odd ones the spaces between them; walk back so insertions keep indexes valid.
+            for ($w = count($words) - 1 - (count($words) - 1) % 2; $w >= 0; $w -= 2) {
+                $token = Arabic::normalize($words[$w]);
+                $bare = (string) preg_replace('/^(و|ف)(?=..)/u', '', $token);
+
+                if (! in_array($token, self::PREFERENCE_WORDS, true) && ! in_array($bare, self::PREFERENCE_WORDS, true)) {
+                    continue;
+                }
+
+                $next = Arabic::normalize($words[$w + 2] ?? '');
+
+                // Already attributed, or first person («على الراجح عندنا»), which stays the site-voice check's to reject.
+                if (in_array($next, ['عند', 'لدي', 'عنده', 'عندها', 'لديه', ...self::FIRST_PERSON], true)) {
+                    continue;
+                }
+
+                // The word with up to two words either side (at least three in all) must be in a quote as written.
+                $from = max(0, $w - 4);
+                $to = min(count($words) - 1 - (count($words) - 1) % 2, $w + 4);
+                $window = Arabic::normalize(implode(' ', array_filter(array_slice($words, $from, $to - $from + 1), fn (string $part): bool => trim($part) !== '')));
+
+                if (count(explode(' ', $window)) < 3) {
+                    continue;
+                }
+
+                $holders = [];
+
+                foreach ($quotes as $quote) {
+                    if (str_contains($quote['normalized'], " {$window} ")) {
+                        $holders[$names[$quote['fatwaId']][0] ?? ''] = true;
+                    }
+                }
+
+                unset($holders['']);
+
+                if (count($holders) !== 1) {
+                    continue;
+                }
+
+                $holder = (string) array_key_first($holders);
+
+                // «الصحيح.» → «الصحيح عند إسلام ويب.»: the name goes before the word's closing punctuation.
+                preg_match('/^(.*?)([.,،؛:!?؟»)]*)$/u', $words[$w], $parts);
+                $words[$w] = $parts[1].' عند '.$holder.$parts[2];
+                $added[$holder] = true;
+            }
+
+            $text = implode('', $words);
+
+            // «على الصحيح عند إسلام ويب من أقوال العلماء عند إسلام ويب»: the name the draft gave later in the same
+            // sentence is dropped, so it is shown once, next to the word.
+            foreach (array_keys($added) as $holder) {
+                $name = preg_quote($holder, '/');
+                $text = (string) preg_replace_callback('/[^.!?؟؛\n]+/u', fn (array $sentence): string => (string) preg_replace("/(عند {$name}[^.!?؟؛\n]*?)\s+عند {$name}/u", '$1', $sentence[0], 1), $text);
+            }
+
+            $item[$field] = $text;
+        }
+
+        return $item;
     }
 
     /**

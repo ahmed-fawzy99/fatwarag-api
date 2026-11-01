@@ -25,13 +25,15 @@ class GroundingCheckTest extends TestCase
         'w-13' => 'وقد ذكر بعض الفقهاء أقوالا، منها: يجوز للمسافر أن يجمع بين الظهر والعصر في وقت إحداهما إذا جد به السير. والراجح عندنا المنع.',
         'w-14' => 'يجوز للمسافر أن يجمع بين الظهر والعصر في وقت إحداهما إذا جد به السير عند جمع من أهل العلم، والراجح المنع.',
         'w-15' => 'اختلف الفقهاء في وجوب الزكاة في الذهب المعد للزينة، والجمهور على أنه لا زكاة في حلي المرأة المعد للزينة.',
+        'w-16' => 'ولكن من صلى في بيته بلا عذر، صحت صلاته مع الإثم على الصحيح، ومن أصر على التخلف، فهو على خطر عظيم.',
+        'baz-16' => 'ومن صلى في بيته بلا عذر، صحت صلاته مع الإثم على الصحيح من أقوال العلماء.',
         'binbaz-2' => 'نصاب الذهب عشرون مثقالًا، ومقداره بالجرام اثنان وتسعون جرامًا (92 جرامًا)، والحلي المستعمل لا زكاة فيه عند جمع من أهل العلم لأنه معد للاستعمال كالثياب والمتاع.',
     ];
 
     private const NAMES = [
         'w-7' => ['إسلام ويب'], 'w-8' => ['إسلام ويب'], 'w-9' => ['إسلام ويب'], 'w-10' => ['إسلام ويب'],
         'w-11' => ['إسلام ويب'], 'w-12' => ['إسلام ويب'], 'w-13' => ['إسلام ويب'], 'w-14' => ['إسلام ويب'], 'w-15' => ['إسلام ويب'],
-        'web-3' => ['إسلام ويب'],
+        'web-3' => ['إسلام ويب'], 'w-16' => ['إسلام ويب'], 'baz-16' => ['ابن باز', 'باز'],
         'baz-5' => ['ابن باز', 'باز'],
         'baz-7' => ['ابن باز', 'باز'],
         'q-6' => ['ابن باز', 'باز'],
@@ -693,6 +695,31 @@ class GroundingCheckTest extends TestCase
      *
      * @return array<string, mixed>|null
      */
+    /**
+     * «على الصحيح» copied word for word from one source's own quote is that source's word: «عند <source>» is added
+     * after it and the point passes. Not copied, or copied from two sources' quotes, it is still the site's voice.
+     */
+    public function test_a_preference_word_copied_from_one_sources_quote_is_attributed_to_it(): void
+    {
+        $copied = $this->draft(agreed: $this->point('صلاة من تخلف عن الجماعة', 'ومن صلى في بيته بلا عذر صحت صلاته مع الإثم على الصحيح.', ['w-16'], [['fatwaId' => 'w-16', 'quote' => 'ولكن من صلى في بيته بلا عذر، صحت صلاته مع الإثم على الصحيح']]), kind: 'agree');
+        $checked = $this->check($copied);
+        $this->assertNotNull($checked);
+        $this->assertSame('ومن صلى في بيته بلا عذر صحت صلاته مع الإثم على الصحيح عند إسلام ويب.', $checked['agreed']['body']);
+
+        // The draft's own «عند إسلام ويب» later in the sentence isn't shown a second time.
+        $namedLater = $this->draft(agreed: $this->point('صلاة من تخلف عن الجماعة', 'ومن صلى في بيته بلا عذر صحت صلاته مع الإثم على الصحيح، ومن أصر على التخلف فهو على خطر عظيم عند إسلام ويب.', ['w-16'], [['fatwaId' => 'w-16', 'quote' => 'ولكن من صلى في بيته بلا عذر، صحت صلاته مع الإثم على الصحيح، ومن أصر على التخلف، فهو على خطر عظيم']]), kind: 'agree');
+        $this->assertSame('ومن صلى في بيته بلا عذر صحت صلاته مع الإثم على الصحيح عند إسلام ويب، ومن أصر على التخلف فهو على خطر عظيم.', $this->check($namedLater)['agreed']['body'] ?? null);
+
+        $notCopied = $this->draft(agreed: $this->point('صلاة من تخلف عن الجماعة', 'ومن صلى في بيته بلا عذر فالصحيح أن صلاته صحت مع الإثم.', ['w-16'], [['fatwaId' => 'w-16', 'quote' => 'ولكن من صلى في بيته بلا عذر، صحت صلاته مع الإثم على الصحيح']]), kind: 'agree');
+        $this->assertNull($this->check($notCopied));
+
+        $twoSources = $this->draft(agreed: $this->point('صلاة من تخلف عن الجماعة', 'ومن صلى في بيته بلا عذر صحت صلاته مع الإثم على الصحيح.', ['w-16', 'baz-16'], [
+            ['fatwaId' => 'w-16', 'quote' => 'ولكن من صلى في بيته بلا عذر، صحت صلاته مع الإثم على الصحيح'],
+            ['fatwaId' => 'baz-16', 'quote' => 'ومن صلى في بيته بلا عذر، صحت صلاته مع الإثم على الصحيح من أقوال العلماء'],
+        ]), kind: 'agree');
+        $this->assertNull($this->check($twoSources));
+    }
+
     private function checkIds(string $fatwaId, string $title, string $body): ?array
     {
         $sentences = new SourceSentences;

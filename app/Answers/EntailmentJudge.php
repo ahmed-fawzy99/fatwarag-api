@@ -45,7 +45,9 @@ class EntailmentJudge implements Agent, HasStructuredOutput
               من», «وذهب الجمهور», "some held", "it is said"). A fatwa that reports a view, and especially one it then
               rejects, does not hold it: a claim or "Held by" that names the source or mufti for a view its quote
               attributes to others is "not_supported". If the passage then gives the fatwa's own, different ruling («والراجح…», «والصحيح…», «لكن…»), a claim
-              stating the reported view as the ruling is "not_supported". Judge only by the evidence shown. Ignore
+              stating the reported view as the ruling is "not_supported". A sentence naming the proof a view rests on
+              («واستدلوا بحديث…», "the view relies on the hadith…") is supported when that verse or hadith is among the
+              VERSES AND HADITH THE CLAIM ATTACHES and the sentence describes it as its text says. Judge only by the evidence shown. Ignore
               wording, style and length; neutral framing ("the sources differ", "the first view") needs no evidence.
             - "contradicted" if the evidence says the opposite or a different strength.
             - "not_supported" if the evidence doesn't establish it.
@@ -93,7 +95,7 @@ class EntailmentJudge implements Agent, HasStructuredOutput
     /**
      * Summary items against their support quotes.
      *
-     * @param  array<string, array{claim: string, quotes: list<string>, context?: list<string>}>  $items
+     * @param  array<string, array{claim: string, quotes: list<string>, context?: list<string>, cited?: list<string>}>  $items
      * @return array<string, array{verdict: string, reason: string, sentences: list<int>}>|null verdicts by id (missing ids = not supported), or null when the judge failed
      */
     public function claims(array $items): ?array
@@ -105,6 +107,10 @@ class EntailmentJudge implements Agent, HasStructuredOutput
 
             if (($item['context'] ?? []) !== []) {
                 $block .= "\nALSO IN THE CITED FATWAS (other sentences that give a different ruling on the same subject; the claim is not supported if they contradict it, limit it or make it conditional in a way the claim drops):\n- ".implode("\n- ", $item['context']);
+            }
+
+            if (($item['cited'] ?? []) !== []) {
+                $block .= "\nVERSES AND HADITH THE CLAIM ATTACHES (quoted as evidence in the cited fatwas; they establish only that the fatwa cites this proof and what the text itself says, never a ruling, its strength, a condition or who holds a view):\n- ".implode("\n- ", $item['cited']);
             }
 
             $blocks[] = $block;

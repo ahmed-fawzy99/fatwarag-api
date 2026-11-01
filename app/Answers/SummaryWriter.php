@@ -1847,7 +1847,7 @@ class SummaryWriter implements Agent, HasProviderOptions
      * cited fatwas that gives a different ruling on the same subject, so leaving it out of the support can't hide it.
      *
      * @param  array<string, mixed>  $item
-     * @return array{claim: string, quotes: list<string>, context: list<string>}
+     * @return array{claim: string, quotes: list<string>, context: list<string>, cited: list<string>}
      */
     private function claim(array $item): array
     {
@@ -1871,7 +1871,40 @@ class SummaryWriter implements Agent, HasProviderOptions
                     $item['support'],
                 )))),
             ],
+            'cited' => $this->citedEvidenceTexts($item),
         ];
+    }
+
+    /**
+     * The verses and hadith the item attaches (the same ones its reader sees, at most two), each labelled with the
+     * fatwa that quotes it, so the judge can check a sentence saying which proof a view rests on («واستدلوا بحديث…»).
+     *
+     * @param  array<string, mixed>  $item
+     * @return list<string>
+     */
+    private function citedEvidenceTexts(array $item): array
+    {
+        $markers = $this->sentences->markers();
+        $texts = [];
+
+        foreach (is_array($item['evidence'] ?? null) ? $item['evidence'] : [] as $reference) {
+            $fatwaId = (string) ($reference['fatwaId'] ?? '');
+            $marker = (int) ($reference['marker'] ?? 0);
+            $segment = isset($this->shownMarkers[$fatwaId][$marker]) ? ($markers[$fatwaId][$marker] ?? null) : null;
+
+            if ($segment === null || ! in_array($fatwaId, $item['citations'] ?? [], true)) {
+                continue;
+            }
+
+            $kind = $segment['type'] === 'quran' ? 'verse' : 'hadith';
+            $texts["{$fatwaId}#{$marker}"] = '['.($this->sourceLabels[$fatwaId] ?? $fatwaId)."] {$kind} the fatwa quotes as evidence: «".$segment['text'].'»';
+
+            if (count($texts) === self::MAX_EVIDENCE_PER_POINT) {
+                break;
+            }
+        }
+
+        return array_values($texts);
     }
 
     /**

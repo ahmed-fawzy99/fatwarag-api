@@ -26,6 +26,8 @@ class DiagnoseCommonSummaries extends Command
     protected $signature = 'common:diagnose
         {out : Directory to write the traces to}
         {--only= : Only these common question ids, comma-separated}
+        {--question= : Trace this question text instead of the common questions (the owner test question)}
+        {--runs=1 : How many times to trace each question}
         {--locale= : Only this locale (ar or en); both by default}
         {--budget=3.5 : Stop before the next summary once this much (USD) has been spent by this run}
         {--no-shadow-judge : Don\'t ask the claims judge about the items the safeguard rejected}';
@@ -50,24 +52,30 @@ class DiagnoseCommonSummaries extends Command
         $startId = (int) AiUsage::query()->max('id');
         $spent = fn (): float => (float) AiUsage::query()->where('id', '>', $startId)->sum('cost_usd');
 
-        $questions = CommonQuestion::query()
-            ->when($only !== [], fn ($query) => $query->whereKey($only))
-            ->orderBy('position')
-            ->get();
+        $questions = filled($this->option('question'))
+            ? collect([new CommonQuestion(['question_ar' => (string) $this->option('question'), 'question_en' => (string) $this->option('question')])->forceFill(['id' => 0])])
+            : CommonQuestion::query()
+                ->when($only !== [], fn ($query) => $query->whereKey($only))
+                ->orderBy('position')
+                ->get();
+        $runs = max(1, (int) $this->option('runs'));
 
         foreach ($questions as $question) {
             foreach ($locales as $locale) {
-                if ($spent() >= $budget) {
-                    $this->warn(sprintf('Budget reached ($%.4f); stopping.', $spent()));
+                for ($run = 1; $run <= $runs; $run++) {
+                    if ($spent() >= $budget) {
+                        $this->warn(sprintf('Budget reached ($%.4f); stopping.', $spent()));
 
-                    return self::SUCCESS;
+                        return self::SUCCESS;
+                    }
+
+                    $before = $spent();
+                    $trace = $this->diagnose($search, $question, $locale);
+                    $trace['cost'] = round($spent() - $before, 6);
+                    $suffix = $runs > 1 ? "_run{$run}" : '';
+                    file_put_contents("{$out}/q{$question->id}_{$locale}{$suffix}.json", json_encode($trace, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_INVALID_UTF8_SUBSTITUTE));
+                    $this->line(sprintf('#%d %s run %d: %s ($%.4f)', $question->id, $locale, $run, $trace['status'], $trace['cost']));
                 }
-
-                $before = $spent();
-                $trace = $this->diagnose($search, $question, $locale);
-                $trace['cost'] = round($spent() - $before, 6);
-                file_put_contents("{$out}/q{$question->id}_{$locale}.json", json_encode($trace, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_INVALID_UTF8_SUBSTITUTE));
-                $this->line(sprintf('#%d %s: %s ($%.4f)', $question->id, $locale, $trace['status'], $trace['cost']));
             }
         }
 

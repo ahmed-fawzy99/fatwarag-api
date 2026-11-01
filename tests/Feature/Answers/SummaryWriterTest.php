@@ -81,6 +81,10 @@ class SummaryWriterTest extends TestCase
 
         SummaryWriter::assertPrompted(fn (AgentPrompt $prompt): bool => $prompt->contains('[F1.S2] وقال ﷺ: [F1.E2 حديث]«'.self::HADITH.'»')
             && $prompt->contains('<fatwa id="F1"') && $prompt->contains('<fatwa id="F2"'));
+
+        // The judge reads the verses and hadith the point attaches, so a sentence naming its proof can be checked.
+        EntailmentJudge::assertPrompted(fn (AgentPrompt $prompt): bool => $prompt->contains('VERSES AND HADITH THE CLAIM ATTACHES')
+            && $prompt->contains('hadith the fatwa quotes as evidence: «'.self::HADITH.'»'));
     }
 
     public function test_each_sentence_is_numbered_but_the_question_is_not(): void
